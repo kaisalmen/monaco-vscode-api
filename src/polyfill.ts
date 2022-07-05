@@ -3,28 +3,41 @@ import { QuickInputController } from 'vs/base/parts/quickinput/browser/quickInpu
 // @ts-ignore
 import { VSBuffer as MonacoVSBuffer } from 'monaco-editor/esm/vs/base/common/buffer.js'
 import { VSBuffer as VScodeVSBuffer } from 'vscode/vs/base/common/buffer.js'
+// @ts-ignore
+import { Themable as MonacoThemable } from 'monaco-editor/esm/vs/platform/theme/common/themeService.js'
+import { Themable as VScodeThemable } from 'vscode/vs/platform/theme/common/themeService.js'
+// @ts-ignore
+import { ProgressBar as MonacoProgressBar } from 'monaco-editor/esm/vs/base/browser/ui/progressbar/progressbar.js'
+import { ProgressBar as VScodeProgressBar } from 'vscode/vs/base/browser/ui/progressbar/progressbar.js'
+import { getSingletonServiceDescriptors } from 'vs/platform/instantiation/common/extensions'
+import { ILabelService } from 'vs/platform/label/common/label'
+import { Event } from 'vs/base/common/event'
+import { IQuickInput, IQuickPick } from 'vs/base/parts/quickinput/common/quickInput'
 
-const createQuickPick = QuickInputController.prototype.createQuickPick
-QuickInputController.prototype.createQuickPick = function () {
-  const quickPick = createQuickPick.call(this)
-  // @ts-ignore
-  quickPick.onDidTriggerButton = quickPick.onDidTriggerButtonEmitter.event
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return quickPick as any
+(MonacoProgressBar as typeof VScodeProgressBar).prototype.hide = VScodeProgressBar.prototype.hide
+
+// eslint-disable-next-line dot-notation
+;(MonacoThemable as typeof VScodeThemable).prototype['getColor'] ??= VScodeThemable.prototype['getColor']
+
+function polyfillQuickInput<T extends IQuickInput> (fn: () => T): () => T {
+  return function (this: QuickInputController) {
+    const quickInput = fn.call(this)
+    // @ts-ignore
+    quickInput.onDidTriggerButton ??= quickInput.onDidTriggerButtonEmitter.event
+    return quickInput
+  }
 }
 
-const createInputBox = QuickInputController.prototype.createQuickPick
-QuickInputController.prototype.createInputBox = function () {
-  const inputBox = createInputBox.call(this)
-  // @ts-ignore
-  inputBox.onDidTriggerButton = inputBox.onDidTriggerButtonEmitter.event
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return inputBox as any
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+QuickInputController.prototype.createQuickPick = polyfillQuickInput<IQuickPick<any>>(QuickInputController.prototype.createQuickPick)
+QuickInputController.prototype.createInputBox = polyfillQuickInput(QuickInputController.prototype.createInputBox)
+
+const StandaloneUriLabelService = getSingletonServiceDescriptors().find(([id]) => id === ILabelService)![1].ctor
+StandaloneUriLabelService.prototype.onDidChangeFormatters ??= Event.None
 
 // A lot of methods from VSBuffer are treeshaked out of monaco editor, we need to restore them here
 // Also we cannot just use the VSCode impl because:
-// - The vscode code received instances created inside monaco code
+// - The vscode code receives instances created inside monaco code
 // - VSCode does `instanceof` on instances that need to work
 
 function toVSCodeVSBuffer (value: unknown) {
