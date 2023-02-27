@@ -29,8 +29,8 @@ import { StandaloneConfigurationService as VScodeStandaloneConfigurationService 
 import { TernarySearchTree as MonacoTernarySearchTree } from 'monaco-editor/esm/vs/base/common/map.js'
 import { TernarySearchTree as VScodeTernarySearchTree } from 'vscode/vs/base/common/map.js'
 // @ts-ignore Creating a d.ts is not worth it
-import { Configuration as MonacoConfiguration } from 'monaco-editor/esm/vs/platform/configuration/common/configurationModels.js'
-import { Configuration as VScodeConfiguration } from 'vscode/vs/platform/configuration/common/configurationModels.js'
+import { Configuration as MonacoConfiguration, ConfigurationModel as MonacoConfigurationModel } from 'monaco-editor/esm/vs/platform/configuration/common/configurationModels.js'
+import { Configuration as VScodeConfiguration, ConfigurationModel as VScodeConfigurationModel } from 'vscode/vs/platform/configuration/common/configurationModels.js'
 // @ts-ignore Creating a d.ts is not worth it
 import { RawContextKey as MonacoRawContextKey } from 'monaco-editor/esm/vs/platform/contextkey/common/contextkey.js'
 import { RawContextKey as VScodeRawContextKey } from 'vscode/vs/platform/contextkey/common/contextkey.js'
@@ -50,8 +50,14 @@ import { List as VScodeList } from 'vscode/vs/base/browser/ui/list/listWidget.js
 import { Color as MonacoColor, RGBA as MonacoRGBA } from 'monaco-editor/esm/vs/base/common/color.js'
 import { Color as VScodeColor, RGBA as VScodeRGBA } from 'vscode/vs/base/common/color.js'
 // @ts-ignore Creating a d.ts is not worth it
-import { LogService as MonacoLogService } from 'monaco-editor/esm/vs/platform/log/common/log.js'
-import { LogService as VScodeLogService } from 'vscode/vs/platform/log/common/log.js'
+import { LogService as MonacoLogService, ConsoleLogger as MonacoConsoleLogger } from 'monaco-editor/esm/vs/platform/log/common/log.js'
+import { LogService as VScodeLogService, ConsoleLogger as VScodeConsoleLogger } from 'vscode/vs/platform/log/common/log.js'
+// @ts-ignore Creating a d.ts is not worth it
+import { ExtUri as MonacoExtUri } from 'monaco-editor/esm/vs/base/common/resources.js'
+import { ExtUri as VScodeExtUri } from 'vscode/vs/base/common/resources.js'
+// @ts-ignore Creating a d.ts is not worth it
+import { PieceTreeTextBufferFactory as MonacoPieceTreeTextBufferFactory } from 'monaco-editor/esm/vs/editor/common/model/pieceTreeTextBuffer/pieceTreeTextBufferBuilder.js'
+import { PieceTreeTextBufferFactory as VScodePieceTreeTextBufferFactory } from 'vscode/vs/editor/common/model/pieceTreeTextBuffer/pieceTreeTextBufferBuilder.js'
 // @ts-ignore Creating a d.ts is not worth it
 import { SnippetParser } from 'monaco-editor/esm/vs/editor/contrib/snippet/browser/snippetParser.js'
 
@@ -91,7 +97,11 @@ function polyfillPrototype<T> (a: Partial<T>, b: T, toA: (i: unknown) => unknown
   }
 }
 
+polyfillPrototypeSimple(MonacoPieceTreeTextBufferFactory.prototype, VScodePieceTreeTextBufferFactory.prototype)
+polyfillPrototypeSimple(MonacoConfigurationModel.prototype, VScodeConfigurationModel.prototype)
 polyfillPrototypeSimple(MonacoLogService.prototype, VScodeLogService.prototype)
+polyfillPrototypeSimple(MonacoConsoleLogger.prototype, VScodeConsoleLogger.prototype)
+polyfillPrototypeSimple(MonacoExtUri.prototype, VScodeExtUri.prototype)
 polyfillPrototypeSimple(MonacoList.prototype, VScodeList.prototype)
 polyfillPrototypeSimple(MonacoWorkspaceFolder.prototype, VScodeWorkspaceFolder.prototype)
 polyfillPrototypeSimple(MonacoLanguagesRegistry.prototype, VScodeLanguagesRegistry.prototype)

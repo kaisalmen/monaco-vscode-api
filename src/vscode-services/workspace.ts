@@ -77,36 +77,24 @@ const workspace: typeof vscode.workspace = {
     return configProvider.onDidChangeConfiguration(listener, thisArgs, disposables)
   },
   get rootPath () {
-    const { workspace } = Services.get()
-    return workspace?.rootPath
+    const { extHostWorkspace } = getExtHostServices()
+
+    return extHostWorkspace.getPath()
   },
   get workspaceFolders (): typeof vscode.workspace.workspaceFolders {
-    const { workspace } = Services.get()
-    if (workspace == null) {
-      return undefined
-    }
-    if ('workspaceFolders' in workspace) {
-      return workspace.workspaceFolders
-    }
-    const rootPath = workspace.rootPath
-    if (rootPath == null) {
-      return undefined
-    }
-    const uri = URI.file(rootPath)
-    return [{
-      uri,
-      index: 0,
-      name: uri.toString()
-    }]
+    const { extHostWorkspace } = getExtHostServices()
+
+    return extHostWorkspace.getWorkspaceFolders()
   },
-  getWorkspaceFolder (uri: vscode.Uri) {
-    return this.workspaceFolders?.find(folder => {
-      return uri.path.startsWith(folder.uri.path)
-    })
+  getWorkspaceFolder (resource: vscode.Uri) {
+    const { extHostWorkspace } = getExtHostServices()
+
+    return extHostWorkspace.getWorkspaceFolder(resource)
   },
-  get onDidChangeWorkspaceFolders (): typeof vscode.workspace.onDidChangeWorkspaceFolders {
-    const { workspace } = Services.get()
-    return workspace?.onDidChangeWorkspaceFolders ?? Event.None
+  onDidChangeWorkspaceFolders: function (listener, thisArgs?, disposables?) {
+    const { extHostWorkspace } = getExtHostServices()
+
+    return extHostWorkspace.onDidChangeWorkspace(listener, thisArgs, disposables)
   },
   get textDocuments (): typeof vscode.workspace.textDocuments {
     const { extHostDocuments } = getExtHostServices()
@@ -153,16 +141,24 @@ const workspace: typeof vscode.workspace = {
   get onDidGrantWorkspaceTrust (): vscode.Event<void> {
     return Event.None
   },
-  asRelativePath: unsupported,
-  updateWorkspaceFolders (start: number, deleteCount: number | undefined | null, ...workspaceFoldersToAdd: { readonly uri: vscode.Uri, readonly name?: string }[]): boolean {
-    const { workspace } = Services.get()
-    if (workspace?.updateWorkspaceFolders != null) {
-      return workspace.updateWorkspaceFolders(start, deleteCount, ...workspaceFoldersToAdd)
-    }
-    return false
+  asRelativePath: (pathOrUri, includeWorkspace?) => {
+    const { extHostWorkspace } = getExtHostServices()
+    return extHostWorkspace.getRelativePath(pathOrUri, includeWorkspace)
   },
-  findFiles: unsupported,
-  saveAll: unsupported,
+  updateWorkspaceFolders: (index, deleteCount, ...workspaceFoldersToAdd) => {
+    const { extHostWorkspace } = getExtHostServices()
+    const extension = Services.get().extension ?? DEFAULT_EXTENSION
+    return extHostWorkspace.updateWorkspaceFolders(extension, index, deleteCount ?? 0, ...workspaceFoldersToAdd)
+  },
+  findFiles: (include, exclude, maxResults?, token?) => {
+    const { extHostWorkspace } = getExtHostServices()
+    const extension = Services.get().extension ?? DEFAULT_EXTENSION
+    return extHostWorkspace.findFiles(include, exclude, maxResults, extension.identifier, token)
+  },
+  saveAll: (includeUntitled?) => {
+    const { extHostWorkspace } = getExtHostServices()
+    return extHostWorkspace.saveAll(includeUntitled)
+  },
   openTextDocument (uriOrFileNameOrOptions?: vscode.Uri | string | { language?: string, content?: string }) {
     const { extHostDocuments } = getExtHostServices()
     let uriPromise: Thenable<URI>

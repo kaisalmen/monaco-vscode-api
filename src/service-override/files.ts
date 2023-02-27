@@ -106,6 +106,8 @@ class MemoryFileService extends FileService {
     super(logService)
 
     this.registerProvider('user', new InMemoryFileSystemProvider())
+    this.registerProvider('cache', new InMemoryFileSystemProvider())
+    this.registerProvider('file', new InMemoryFileSystemProvider())
 
     const extension = Services.get().extension ?? DEFAULT_EXTENSION
     this.registerProvider(extension.extensionLocation.scheme, extensionFileSystemProvider)

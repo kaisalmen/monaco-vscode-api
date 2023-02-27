@@ -189,8 +189,8 @@ class CustomTextModelResolverService extends TextModelResolverService {
 
 export default function getServiceOverride (openEditor: OpenEditor): IEditorOverrideServices {
   return {
-    [ITextModelService.toString()]: new SyncDescriptor(CustomTextModelResolverService),
-    [ICodeEditorService.toString()]: new SyncDescriptor(CodeEditorService),
+    [ITextModelService.toString()]: new SyncDescriptor(CustomTextModelResolverService, undefined, true),
+    [ICodeEditorService.toString()]: new SyncDescriptor(CodeEditorService, undefined, true),
     [IEditorService.toString()]: new SyncDescriptor(EditorService, [openEditor])
   }
 }

@@ -81,8 +81,14 @@ import { MainThreadConfiguration } from 'vs/workbench/api/browser/mainThreadConf
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace'
 import { UIKind } from 'vs/workbench/services/extensions/common/extensionHostProtocol'
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation'
-import { unsupported } from '../tools'
+import { MainThreadWorkspace } from 'vs/workbench/api/browser/mainThreadWorkspace'
+import { ISearchService } from 'vs/workbench/services/search/common/search'
+import { IWorkspaceEditingService } from 'vs/workbench/services/workspaces/common/workspaceEditing'
+import { IRequestService } from 'vs/platform/request/common/request'
+import { ILabelService } from 'vs/platform/label/common/label'
+import { IWorkspaceTrustManagementService, IWorkspaceTrustRequestService } from 'vs/platform/workspace/common/workspaceTrust'
 import { Services } from '../services'
+import { unsupported } from '../tools'
 
 export const DEFAULT_EXTENSION: IExtensionDescription = {
   identifier: new ExtensionIdentifier('monaco'),
@@ -186,6 +192,12 @@ function createExtHostServices () {
   const configurationService = StandaloneServices.get(IConfigurationService)
   const workspaceContextService = StandaloneServices.get(IWorkspaceContextService)
   const extensionService = StandaloneServices.get(IExtensionService)
+  const searchService = StandaloneServices.get(ISearchService)
+  const workspaceEditingService = StandaloneServices.get(IWorkspaceEditingService)
+  const requestService = StandaloneServices.get(IRequestService)
+  const labelService = StandaloneServices.get(ILabelService)
+  const workspaceTrustManagementService = StandaloneServices.get(IWorkspaceTrustManagementService)
+  const workspaceTrustRequestService = StandaloneServices.get(IWorkspaceTrustRequestService)
   const instantiationService = StandaloneServices.get(IInstantiationService)
 
   const imessagePassingProtocol = new SimpleMessagePassingProtocol()
@@ -275,6 +287,7 @@ function createExtHostServices () {
   rpcProtocol.set(MainContext.MainThreadClipboard, new MainThreadClipboard(mainContext, clipboardService))
   rpcProtocol.set(MainContext.MainThreadLanguageFeatures, new MainThreadLanguageFeatures(mainContext, languageService, languageConfigurationService, languageFeaturesService))
   rpcProtocol.set(MainContext.MainThreadConfiguration, new MainThreadConfiguration(mainContext, workspaceContextService, configurationService, workbenchEnvironmentService))
+  rpcProtocol.set(MainContext.MainThreadWorkspace, new MainThreadWorkspace(mainContext, searchService, workspaceContextService, editorService, workspaceEditingService, notificationService, requestService, instantiationService, labelService, workbenchEnvironmentService, fileService, workspaceTrustManagementService, workspaceTrustRequestService))
 
   // eslint-disable-next-line no-new
   new MainThreadDocumentsAndEditors(

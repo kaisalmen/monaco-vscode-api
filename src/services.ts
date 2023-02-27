@@ -21,10 +21,6 @@ export interface Window {
 }
 
 export interface Workspace {
-  rootPath?: string
-  workspaceFolders?: typeof vscode.workspace.workspaceFolders
-  updateWorkspaceFolders?: typeof vscode.workspace.updateWorkspaceFolders
-  onDidChangeWorkspaceFolders?: typeof vscode.workspace.onDidChangeWorkspaceFolders
   onWillSaveTextDocument?: vscode.Event<vscode.TextDocumentWillSaveEvent>
   onDidSaveTextDocument?: vscode.Event<vscode.TextDocument>
   createFileSystemWatcher?: typeof vscode.workspace.createFileSystemWatcher

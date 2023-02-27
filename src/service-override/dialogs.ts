@@ -17,7 +17,7 @@ export default function getServiceOverride (container?: HTMLElement): IEditorOve
   onServicesInitialized(initialize)
 
   return {
-    [IDialogService.toString()]: new SyncDescriptor(DialogService),
+    [IDialogService.toString()]: new SyncDescriptor(DialogService, undefined, true),
     ...getLayoutServiceOverride(container)
   }
 }

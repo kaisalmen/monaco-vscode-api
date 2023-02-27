@@ -128,7 +128,7 @@ export default function getServiceOverride (): IEditorOverrideServices {
   return {
     ...getFileServiceOverride(),
     [IKeybindingService.toString()]: new SyncDescriptor(DelegateStandaloneKeybindingService),
-    [IKeyboardLayoutService.toString()]: new SyncDescriptor(BrowserKeyboardLayoutService)
+    [IKeyboardLayoutService.toString()]: new SyncDescriptor(BrowserKeyboardLayoutService, undefined, true)
   }
 }
 

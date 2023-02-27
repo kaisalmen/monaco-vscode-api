@@ -39,7 +39,7 @@ export default function getServiceOverride (container?: HTMLElement): IEditorOve
   onServicesInitialized(initialize)
 
   return {
-    [INotificationService.toString()]: new SyncDescriptor(NotificationService),
+    [INotificationService.toString()]: new SyncDescriptor(NotificationService, undefined, true),
     ...getLayoutServiceOverride(container)
   }
 }
